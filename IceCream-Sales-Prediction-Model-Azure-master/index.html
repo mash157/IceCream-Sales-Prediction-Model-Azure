@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Cream Sales Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFD89B 0%, #FFC5D5 25%, #B8E6F0 50%, #FFE5B4 75%, #E6B3FF 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='ic1' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF1493;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%23FF69B4;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23FFC0CB;stop-opacity:0.15' /%3E%3C/linearGradient%3E%3ClinearGradient id='stick1' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23D2691E;stop-opacity:0.4' /%3E%3Cstop offset='100%25' style='stop-color:%238B4513;stop-opacity:0.2' /%3E%3C/linearGradient%3E%3ClinearGradient id='ic2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFD700;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%23FFA500;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23FFB347;stop-opacity:0.15' /%3E%3C/linearGradient%3E%3ClinearGradient id='ic3' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300FF7F;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%2398FB98;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23CCFFCC;stop-opacity:0.15' /%3E%3C/linearGradient%3E%3ClinearGradient id='ic4' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236495ED;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%2387CEEB;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23B0E0E6;stop-opacity:0.15' /%3E%3C/linearGradient%3E%3ClinearGradient id='ic5' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF8C00;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%23FFB347;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23FFDAB9;stop-opacity:0.15' /%3E%3C/linearGradient%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='2' dy='2' stdDeviation='3' flood-opacity='0.3'/%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx='50' cy='80' r='40' fill='url(%23ic1)' filter='url(%23shadow)'/%3E%3Crect x='35' y='115' width='30' height='60' rx='6' fill='url(%23stick1)'/%3E%3Ccircle cx='200' cy='150' r='35' fill='url(%23ic2)' filter='url(%23shadow)'/%3E%3Crect x='185' y='180' width='30' height='55' rx='6' fill='url(%23stick1)'/%3E%3Ccircle cx='100' cy='30' r='30' fill='url(%23ic3)' filter='url(%23shadow)'/%3E%3Crect x='88' y='55' width='24' height='50' rx='5' fill='url(%23stick1)'/%3E%3Ccircle cx='250' cy='60' r='32' fill='url(%23ic4)' filter='url(%23shadow)'/%3E%3Crect x='237' y='87' width='26' height='52' rx='5' fill='url(%23stick1)'/%3E%3Ccircle cx='150' cy='240' r='28' fill='url(%23ic5)' filter='url(%23shadow)'/%3E%3Crect x='139' y='263' width='22' height='45' rx='4' fill='url(%23stick1)'/%3E%3C/svg%3E");
+            background-attachment: fixed;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            width: 100%;
+            padding: 50px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+        }
+        h1 {
+            background: linear-gradient(135deg, #FF6B9D 0%, #FFC857 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-block-end: 40px;
+            font-size: 2.8em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        .form-section h2 {
+            color: #FF6B9D;
+            font-size: 1.3em;
+            margin-block-end: 20px;
+            border-block-end: 3px solid #FFD700;
+            padding-block-end: 10px;
+        }
+        .form-group {
+            margin-block-end: 20px;
+        }
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-block-end: 8px;
+            font-size: 0.95em;
+        }
+        input, select {
+            inline-size: 100%;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFB8D1;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #FF6B9D;
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+        button {
+            inline-size: 100%;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF6B9D 0%, #FFB347 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 15px rgba(255, 107, 157, 0.3);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255, 107, 157, 0.4);
+        }
+        button:active {
+            transform: translateY(-1px);
+        }
+        .results-section {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(255, 200, 100, 0.1) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            display: none;
+        }
+        .results-section.show {
+            display: block;
+        }
+        .results-section h2 {
+            color: #FF6B9D;
+            font-size: 1.3em;
+            margin-block-end: 20px;
+            border-block-end: 3px solid #FFD700;
+            padding-block-end: 10px;
+        }
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-block-end: 15px;
+            border-inline-start: 4px solid #FF6B9D;
+            border-radius: 8px;
+        }
+        .result-item:last-child {
+            margin-block-end: 0;
+        }
+        .result-label {
+            color: #666;
+            font-weight: 600;
+            margin-block-end: 5px;
+            font-size: 0.9em;
+        }
+        .result-value {
+            font-size: 1.8em;
+            color: #FF6B9D;
+            font-weight: bold;
+        }
+        .metrics-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(152, 255, 152, 0.1) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+        }
+        .metrics-section h2 {
+            color: #FF6B9D;
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #FFD700;
+            padding-bottom: 10px;
+        }
+        .graph-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 2px solid rgba(255, 107, 157, 0.2);
+            display: none;
+        }
+        .graph-section.show {
+            display: block;
+        }
+        .graph-section h3 {
+            color: #FF6B9D;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .metric-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .metric-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #FFB8D1;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .metric-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(255, 107, 157, 0.25);
+        }
+        .metric-title {
+            color: #666;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-block-end: 8px;
+        }
+        .metric-value {
+            font-size: 1.6em;
+            color: #FF6B9D;
+            font-weight: bold;
+        }
+        .error {
+            color: #C0392B;
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid #E74C3C;
+            padding: 15px;
+            border-radius: 8px;
+            margin-block-start: 10px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            color: #FF6B9D;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 10px 0;
+            display: none;
+        }
+        .loading.show {
+            display: block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .metric-row {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍦 Ice Cream Sales Predictor 🍨</h1>
+        
+        <div class="content">
+            <div class="form-section">
+                <h2>📊 Input Parameters</h2>
+                <form id="predictionForm">
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°F):</label>
+                        <input type="number" id="temperature" name="temperature" step="0.1" min="0" max="100" required placeholder="e.g., 75">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rainfall">Rainfall (inches):</label>
+                        <input type="number" id="rainfall" name="rainfall" step="0.1" min="0" max="10" required placeholder="e.g., 0.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dayOfWeek">Day of Week:</label>
+                        <select id="dayOfWeek" name="dayOfWeek" required>
+                            <option value="">-- Select Day --</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="month">Month:</label>
+                        <select id="month" name="month" required>
+                            <option value="">-- Select Month --</option>
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">🎯 Predict Sales</button>
+                    <div class="error" id="error"></div>
+                    <div class="loading" id="loading">⏳ Predicting...</div>
+                </form>
+            </div>
+            
+            <div class="results-section" id="results">
+                <h2>🎉 Prediction Results</h2>
+                <div class="result-item">
+                    <div class="result-label">Linear Regression Prediction:</div>
+                    <div class="result-value" id="lrPrediction">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Random Forest Prediction:</div>
+                    <div class="result-value" id="rfPrediction">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="graph-section" id="graphSection">
+            <h3>📈 Monthly Sales Predictions</h3>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="metrics-section">
+            <h2>📊 Model Performance Metrics</h2>
+            <div id="metricsContent">
+                <p style="text-align: center; color: #666;">Load metrics by making a prediction...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const resultsDiv = document.getElementById('results');
+        const graphSection = document.getElementById('graphSection');
+        const errorDiv = document.getElementById('error');
+        const loadingDiv = document.getElementById('loading');
+        const metricsContent = document.getElementById('metricsContent');
+        let salesChart = null;
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function hideError() {
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function showLoading(show = true) {
+            if (show) {
+                loadingDiv.classList.add('show');
+            } else {
+                loadingDiv.classList.remove('show');
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+            showLoading(true);
+
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const rainfall = parseFloat(document.getElementById('rainfall').value);
+            const dayOfWeek = document.getElementById('dayOfWeek').value;
+            const month = document.getElementById('month').value;
+
+            try {
+                // Make prediction
+                const predResponse = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        temperature: temperature,
+                        rainfall: rainfall,
+                        dayOfWeek: dayOfWeek,
+                        month: month
+                    })
+                });
+
+                if (!predResponse.ok) {
+                    const errData = await predResponse.json();
+                    throw new Error(errData.error || 'Prediction failed');
+                }
+
+                const predResult = await predResponse.json();
+                document.getElementById('lrPrediction').textContent = Math.round(predResult.linear_regression);
+                document.getElementById('rfPrediction').textContent = Math.round(predResult.random_forest);
+                resultsDiv.classList.add('show');
+
+                // Generate monthly predictions graph
+                generateMonthlyGraph(temperature, rainfall, dayOfWeek);
+
+                // Fetch metrics
+                const metricsResponse = await fetch('/api/metrics');
+                if (metricsResponse.ok) {
+                    const metrics = await metricsResponse.json();
+                    displayMetrics(metrics);
+                } else {
+                    throw new Error('Failed to fetch metrics');
+                }
+            } catch (error) {
+                showError('Error: ' + error.message);
+                resultsDiv.classList.remove('show');
+                graphSection.classList.remove('show');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        async function generateMonthlyGraph(temperature, rainfall, dayOfWeek) {
+            const predictions = [];
+            
+            try {
+                for (let month of months) {
+                    const response = await fetch('/api/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            temperature: temperature,
+                            rainfall: rainfall,
+                            dayOfWeek: dayOfWeek,
+                            month: month
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        predictions.push(Math.round(data.random_forest));
+                    } else {
+                        predictions.push(0);
+                    }
+                }
+
+                displayGraph(predictions);
+                graphSection.classList.add('show');
+            } catch (error) {
+                console.error('Error generating graph:', error);
+            }
+        }
+
+        function displayGraph(predictions) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if (salesChart) {
+                salesChart.destroy();
+            }
+
+            const colors = ['#FF6B9D', '#FFB347', '#FFA500', '#FFD700', '#98FF98', '#87CEEB'];
+            const bgColors = [];
+            for (let i = 0; i < predictions.length; i++) {
+                bgColors.push(colors[i % colors.length]);
+            }
+
+            salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Predicted Sales (units)',
+                        data: predictions,
+                        backgroundColor: bgColors,
+                        borderColor: '#FF6B9D',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        tension: 0.4,
+                        hoverBackgroundColor: '#FF6B9D',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 14, weight: 'bold' },
+                                color: '#333',
+                                padding: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawTicks: true
+                            },
+                            ticks: {
+                                font: { size: 12 },
+                                color: '#666'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { size: 12, weight: 'bold' },
+                                color: '#666'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayMetrics(metrics) {
+            let html = '<div class="metric-row">';
+            
+            // Linear Regression Metrics
+            html += '<div>';
+            html += '<h3 style="color: #FF6B9D; margin-block-end: 15px; text-align: center;">📈 Linear Regression</h3>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">R² Score</div>';
+            html += '<div class="metric-value">' + metrics.linear_regression.r2.toFixed(4) + '</div>';
+            html += '</div>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">MSE</div>';
+            html += '<div class="metric-value">' + Math.round(metrics.linear_regression.mse) + '</div>';
+            html += '</div>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">MAE</div>';
+            html += '<div class="metric-value">' + Math.round(metrics.linear_regression.mae) + '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            // Random Forest Metrics
+            html += '<div>';
+            html += '<h3 style="color: #FF6B9D; margin-block-end: 15px; text-align: center;">🌲 Random Forest</h3>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">R² Score</div>';
+            html += '<div class="metric-value">' + metrics.random_forest.r2.toFixed(4) + '</div>';
+            html += '</div>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">MSE</div>';
+            html += '<div class="metric-value">' + Math.round(metrics.random_forest.mse) + '</div>';
+            html += '</div>';
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">MAE</div>';
+            html += '<div class="metric-value">' + Math.round(metrics.random_forest.mae) + '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            html += '</div>';
+            metricsContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
