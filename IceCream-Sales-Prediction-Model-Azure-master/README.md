@@ -30,7 +30,7 @@ A sophisticated machine learning application that predicts ice cream sales based
 ## 📊 Screenshots
 
 ### 🎨 Main Dashboard
-![Dashboard](./docs/screenshots/dashboard.png)
+![Dashboard](docs/dashboard.png)
 **Input parameters form with real-time prediction results**
 - Temperature and rainfall input fields
 - Day of week and month selectors
@@ -39,7 +39,7 @@ A sophisticated machine learning application that predicts ice cream sales based
 - Clean, intuitive user interface
 
 ### 📈 Monthly Sales Predictions
-![Graph](./docs/screenshots/monthly-predictions.png)
+![Monthly Predictions](docs/monthly-predictions.png)
 **Colorful bar chart showing predicted sales for all 12 months**
 - Interactive bar chart with seasonal trends
 - Each month displays different predicted sales value
@@ -47,15 +47,12 @@ A sophisticated machine learning application that predicts ice cream sales based
 - X-axis: All 12 months, Y-axis: Sales in units
 
 ### 📊 Model Performance Metrics
-![Metrics](./docs/screenshots/model-metrics.png)
+![Model Metrics](docs/model-metrics.png)
 **Detailed performance comparison between both models**
 - Linear Regression metrics: R² = 0.9909, MSE = 121, MAE = 9
 - Random Forest metrics: R² = 0.9979, MSE = 29, MAE = 4
 - Side-by-side comparison for easy evaluation
 - Random Forest shows superior accuracy
-
-> **Note:** To view screenshots, ensure the image files are uploaded to the `docs/screenshots/` folder. See [docs/README.md](./docs/README.md) for details.
-
 ## 🚀 Quick Start
 
 ### Prerequisites
